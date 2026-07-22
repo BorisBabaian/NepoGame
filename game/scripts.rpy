@@ -1,0 +1,141 @@
+## Nepo The Game — Prologue mock. Content follows docs/scenario.tex (bm-game).
+## Demonstrates every design component: panels, dialogue, choices with margin
+## notes, the mirror (character creation), the badge printer (name entry),
+## the assignment card and the verdict card. Mechanics come later.
+
+define narrator = Character(None)
+define nestor = Character("NESTOR, THE BUTLER")
+define father = Character("FATHER")
+define vergeau = Character("MME VERGEAU")
+define you = Character("[player_name]")
+
+default portrait_id = 1
+default player_name = "Analyst"
+default reputation = 5
+default composure = 5
+
+init python:
+    def meter(name, delta):
+        store_val = getattr(store, name) + delta
+        setattr(store, name, max(0, min(10, store_val)))
+        sign = "+" if delta > 0 else "−"
+        renpy.notify(name.capitalize() + " " + sign + str(abs(delta)))
+
+label start:
+
+    scene bg_paper with fade
+
+    ## ── The estate ─────────────────────────────────────────────────────────
+    show screen panel("images/panels/wake.png" if renpy.loadable("images/panels/wake.png") else "images/panels/placeholder.png")
+    with dissolve
+
+    "Silk sheets. A canopy bed the size of a branch office. A bedroom with better square footage than most startups."
+    "The alarm clock has been set to 'decorative' since 2019."
+
+    hide screen panel with dissolve
+
+    ## ── The mirror: character creation ─────────────────────────────────────
+    "The bathroom. Heated marble. Eleven kinds of soap, none ever opened. And the mirror. Gilded, generous, and extremely well paid."
+
+    call screen mirror_select
+
+    "Yes. That one. Obviously."
+
+    nestor "Your father requests your presence at breakfast. He used the word 'requests' loosely."
+
+    ## ── Breakfast ──────────────────────────────────────────────────────────
+    show screen panel("images/panels/hall.png" if renpy.loadable("images/panels/hall.png") else "images/panels/placeholder.png")
+    with dissolve
+
+    "11:15 AM. The breakfast hall. A table for forty, set for two."
+    "At the far end, behind a financial newspaper: Father. The front page shows a yacht, a harbour, and a crane lifting something that used to be expensive."
+
+    father "Do you know what a margin is?"
+
+    menu:
+        "\"A type of butter?\"":
+            $ meter("composure", -1)
+        "\"...something in Excel?\"":
+            pass
+        "Say nothing. The newspaper says enough.":
+            $ meter("composure", +1)
+
+    father "A margin is what your yacht did to the harbour master's boat in Portofino. The fine has six digits. I have paid it. That was the last time."
+
+    hide screen panel with dissolve
+
+    "Nestor appears with a small velvet box, held like a coffin at a state funeral. The Visa Platinum is placed inside. The lock clicks with terrible finality."
+
+    father "You start Monday. Vice Head of Special Projects at McQuinsey and Company."
+    you "...what happened to the previous Vice Head?"
+    father "There has never been one. Kristof owed me a favour. No allowance. No accounts. No calls to my office. You will live on a salary. Look the word up."
+
+    "The newspaper rises again like a drawbridge. The audience is over."
+    "The weekend passes through the five stages of grief. By Sunday night, acceptance arrives wearing Nestor's face, laying out a suit like armor for a war somebody else has chosen."
+
+    ## ── Monday ─────────────────────────────────────────────────────────────
+    show screen panel("images/panels/monday.png" if renpy.loadable("images/panels/monday.png") else "images/panels/placeholder.png")
+    with dissolve
+
+    "8:58 AM, Monday. The convertible is parked across two spaces. One of them belongs to the CFO."
+    "Floor 67. Corner office. Two windows. A plant taller than your career."
+    "You open Excel. A full screen of cells stares back. You stare. The cells win. The laptop closes. A dating app opens."
+
+    hide screen panel with dissolve
+
+    vergeau "Oh. You are the new one! Come. Coffee. It is not optional here, like breathing."
+
+    "10:30 AM. The coffee point. Small talk, it turns out, is the one market where you hold a monopoly."
+
+    vergeau "So. Our client's margin is collapsing in the DACH region. Your read?"
+
+    menu:
+        "\"We should leverage synergies to disrupt the paradigm. End-to-end.\"":
+            $ meter("reputation", -2)
+        "\"Have they tried... marketing?\"":
+            $ meter("reputation", -2)
+        "\"Margins are down 4.7 percent. I feel this strongly.\" (You invented the number just now.)":
+            $ meter("reputation", -2)
+
+    vergeau "How does a person who cannot read a P and L become Vice Head of Special..."
+
+    "Her eyes drop to your badge. P. VAULMONT. A pause the length of a fiscal quarter."
+
+    vergeau "Ah. Now I understand."
+    vergeau "Under my leadership, no nepotism. Out of respect for your father, you are not fired. Out of respect for the firm, you are no longer Vice Head of anything."
+
+    ## ── The badge printer: name entry ──────────────────────────────────────
+    "She takes the badge with two fingers, the way one removes evidence. A badge printer wakes up with bureaucratic enthusiasm."
+
+    $ player_name = renpy.input("\"First name,\" she says, not looking up.", default="", length=16).strip() or "Analyst"
+
+    "The printer produces your new identity with insulting speed:"
+    "{b}[player_name] — JUNIOR ANALYST (PROBATIONARY){/b}"
+
+    vergeau "Here, you have no surname. You will earn one back. Or you will not."
+
+    "The lift descends from 67 to 3 in silence. The smallest desk on the open floor waits beside the printer."
+    "And so, at the printer desk, the game begins."
+
+    ## ── Component demo: the assignment card (for the next episodes) ────────
+    call screen assignment_card(
+        "Mme Vergeau",
+        [
+            "Survive three conversations without creating a diplomatic incident.",
+            "Say nothing quotable. Nothing.",
+            "Make exactly one important person remember your name favourably.",
+        ],
+        "Success is invisible. Failure will be discussed at Monday's partner meeting.",
+        "Understood. Invisible. Memorable. Both.",
+    )
+
+    ## ── Verdict ────────────────────────────────────────────────────────────
+    call screen verdict_card(
+        "Day Zero, Reviewed",
+        reputation,
+        composure,
+        "You lost a surname, a floor and a Visa Platinum. You kept the convertible. Priorities intact.",
+        "Course concepts ahead: drivers of globalisation · political risk · economic systems\ncultural dimensions · ethics and CSR · instruments of trade policy",
+    )
+
+    return

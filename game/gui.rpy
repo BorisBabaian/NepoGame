@@ -2,7 +2,8 @@
 ## Paper white ground, ink black line work, elegant serif, full-screen VN.
 
 init python:
-    gui.init(1920, 1080)
+    ## 16:10 canvas — matches MacBook screens, so no top/bottom black bars.
+    gui.init(1920, 1200)
 
     ## Fonts. Picks the first file that actually exists, so the game never
     ## crashes on a missing font. Drop CormorantGaramond / Caveat into

@@ -276,47 +276,40 @@ screen main_menu():
     ## Title block, upper area.
     vbox:
         xalign 0.5
-        yalign 0.14
+        yalign 0.12
         spacing 10
-        text "BUSINESS & MANAGEMENT · IN A GLOBAL CONTEXT":
+        text "BUSINESS AND MANAGEMENT IN A GLOBAL CONTEXT":
             xalign 0.5 size 24 color nepo.ink_faint kerning 6
         text "Nepo The Game" font nepo.serif_bold size 120 xalign 0.5
         text "You had a surname, a platinum card and a corner office.\nYou have lost all three. Earn them back.":
             xalign 0.5 text_align 0.5 size 34 font nepo.serif_italic italic True color nepo.ink_soft
 
-    ## Chapter select.
-    viewport:
+    ## Chapter select — plain vbox (fits without scrolling). Every button has an
+    ## action; locked ones are just insensitive.
+    vbox:
         xalign 0.5
-        yalign 0.60
-        ysize 440
-        scrollbars "vertical"
-        mousewheel True
-        vbox:
-            spacing 16
-            xsize 1000
-            for ch in CHAPTERS:
-                button:
-                    style "chapter_button"
-                    if ch["available"]:
-                        action Start(ch["label"])
-                    else:
-                        sensitive False
-                    hbox:
-                        spacing 20
-                        vbox:
-                            spacing 2
-                            text ch["kicker"]:
-                                size 20 color nepo.ink_faint kerning 3
-                            text ch["title"]:
-                                size 36 font nepo.serif_bold color nepo.ink
-                        text ("▶" if ch["available"] else "locked"):
-                            xalign 1.0 yalign 0.5 size (30 if ch["available"] else 22)
-                            color (nepo.ink if ch["available"] else nepo.ink_faint)
+        yalign 0.58
+        spacing 16
+        for ch in CHAPTERS:
+            button:
+                style "chapter_button"
+                sensitive ch["available"]
+                action Start(ch["label"])
+                hbox:
+                    spacing 20
+                    vbox:
+                        spacing 2
+                        xsize 800
+                        text ch["kicker"] size 20 color nepo.ink_faint kerning 3
+                        text ch["title"] size 36 font nepo.serif_bold color nepo.ink
+                    text ("▶" if ch["available"] else "locked"):
+                        yalign 0.5 size (30 if ch["available"] else 22)
+                        color (nepo.ink if ch["available"] else nepo.ink_faint)
 
     textbutton "Quit":
         style "choice_button"
         xalign 0.5
-        yalign 0.94
+        yalign 0.95
         xminimum 300
         action Quit(confirm=True)
 

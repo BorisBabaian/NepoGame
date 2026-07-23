@@ -29,7 +29,7 @@ init python:
                 Text("{i}" + label + "{/i}", size=48, color="#8a8781",
                      xalign=0.5, yalign=0.4, text_align=0.5, xsize=1300,
                      substitute=False),
-                fit_first=True,
+                xysize=(1920, 1200),
             ))
 
     for n, lbl in [

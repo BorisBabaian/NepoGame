@@ -55,11 +55,22 @@ init python:
 ## ── Chapter registry ─────────────────────────────────────────────────────────
 ## The main menu builds its chapter list from this. Add entries as episodes are
 ## written; set available False for ones not yet built (shown locked).
+## Chapter list. kicker_line / title_line are the exact strings the menu prints,
+## precomputed here so the screen stays simple. Locked chapters get "· LOCKED".
+init python:
+    def _chapter(kicker, time, title, label, available):
+        return {
+            "label": label,
+            "available": available,
+            "kicker_line": kicker.upper() + ("" if available else " · LOCKED"),
+            "title_line": "%s: %s." % (time, title),
+        }
+
 define CHAPTERS = [
-    {"kicker": "Prologue",            "title": "How the Money Ends",     "label": "ch_prologue",   "available": True},
-    {"kicker": "Interlude",           "title": "The Application",         "label": "ch_application","available": False},
-    {"kicker": "Module 1 · Episode 1","title": "Day One",                 "label": "ch_dayone",     "available": False},
-    {"kicker": "Module 1 · Finale",   "title": "The Gala",                "label": "ch_gala",       "available": False},
+    _chapter("Prologue",                    "10:47 AM", "How the Money Ends", "ch_prologue",    True),
+    _chapter("Interlude",                   "2:15 PM",  "The Application",     "ch_application", False),
+    _chapter("Module 1 · Episode 1",        "9:00 AM",  "Day One",             "ch_dayone",      False),
+    _chapter("Module 1 · Finale (preview)", "7:58 PM",  "The Gala",            "ch_gala",        False),
 ]
 
 label start:

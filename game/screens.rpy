@@ -85,7 +85,7 @@ style continue_hint:
     yalign 0.995
 
 ################################################################################
-## Choice — ink buttons with drop shadow, invert and lift on hover
+## Choice — ink buttons that invert to solid ink with paper text on hover
 ################################################################################
 
 screen choice(items):
@@ -93,14 +93,19 @@ screen choice(items):
 
     vbox:
         for i in items:
-            textbutton i.caption action i.action at soft_button
+            textbutton i.caption action i.action
 
-## Smooth, web-like hover: gentle lift + zoom with eased timing.
-transform soft_button:
-    on idle, selected_idle, insensitive:
-        ease 0.16 zoom 1.0 yoffset 0
+## Portraits are images, so they cannot colour-invert like the text buttons.
+## They get a gentle zoom on hover instead.
+transform portrait_hover:
+    on idle, selected_idle:
+        ease 0.15 zoom 1.0
     on hover, selected_hover:
-        ease 0.16 zoom 1.03 yoffset -5
+        ease 0.15 zoom 1.04
+
+## Locked chapter cards are dimmed; they still fill (grey) on hover, like the web.
+transform faded:
+    alpha 0.5
 
 style choice_vbox:
     xalign 0.5
@@ -183,7 +188,6 @@ screen assignment_card(fromwho, objectives, stakes, accept="Understood."):
         xalign 0.5
         yalign 0.9
         action Return()
-        at soft_button
 
 transform rotate_note:
     rotate -2
@@ -212,7 +216,7 @@ screen mirror_select():
         yspacing 34
         for i in range(1, 7):
             imagebutton:
-                at soft_button
+                at portrait_hover
                 idle Fixed(
                     Frame("gui/frame_ink.png", 16, 16),
                     Transform("images/portraits/p%d.png" % i, xysize=(280, 374), align=(0.5, 0.5)),
@@ -266,7 +270,6 @@ screen verdict_card(title, reputation, composure, roast, concepts):
         xalign 0.5
         yalign 0.92
         action Return()
-        at soft_button
 
 ################################################################################
 ## Main menu, pause, confirm, notify
@@ -287,27 +290,26 @@ screen main_menu():
         text "You had a surname, a platinum card and a corner office.\nYou have lost all three. Earn them back.":
             xalign 0.5 text_align 0.5 size 34 font nepo.serif_italic italic True color nepo.ink_soft
 
-    ## Chapter select — plain vbox (fits without scrolling). Every button has an
-    ## action; locked ones are just insensitive.
+    ## Chapter select — centered cards that fill on hover, exactly like the web
+    ## version. Available cards invert to solid ink with paper text; locked cards
+    ## are dimmed and fill grey. A two-line label: kicker over "TIME: Title."
     vbox:
         xalign 0.5
-        yalign 0.58
-        spacing 16
+        yalign 0.56
+        spacing 14
         for ch in CHAPTERS:
             button:
                 style "chapter_button"
-                sensitive ch["available"]
-                action Start(ch["label"])
-                hbox:
-                    spacing 20
-                    vbox:
-                        spacing 2
-                        xsize 800
-                        text ch["kicker"] size 20 color nepo.ink_faint kerning 3
-                        text ch["title"] size 36 font nepo.serif_bold color nepo.ink
-                    text ("▶" if ch["available"] else "locked"):
-                        yalign 0.5 size (30 if ch["available"] else 22)
-                        color (nepo.ink if ch["available"] else nepo.ink_faint)
+                if ch["available"]:
+                    action Start(ch["label"])
+                else:
+                    action Function(renpy.notify, "Locked — finish the previous chapter first.")
+                    at faded
+                vbox:
+                    xfill True
+                    spacing 4
+                    text ch["kicker_line"] style "chapter_kicker"
+                    text ch["title_line"] style "chapter_title"
 
     textbutton "Quit":
         style "choice_button"
@@ -315,18 +317,30 @@ screen main_menu():
         yalign 0.95
         xminimum 300
         action Quit(confirm=True)
-        at soft_button
 
 style chapter_button is default:
     xsize 1000
+    xalign 0.5
     background Frame("gui/btn_idle.png", 20, 20)
     hover_background Frame("gui/btn_hover.png", 20, 20)
-    insensitive_background Frame("gui/frame_ink.png", 20, 20)
-    padding (36, 20, 36, 22)
+    padding (40, 18, 40, 22)
 
-style chapter_button_text:
+style chapter_kicker is default:
+    font nepo.serif
+    size 22
+    kerning 4
+    color nepo.ink_faint
+    hover_color nepo.paper
+    xfill True
+    text_align 0.5
+
+style chapter_title is default:
+    font nepo.serif_bold
+    size 40
     color nepo.ink
     hover_color nepo.paper
+    xfill True
+    text_align 0.5
 
 screen pause_menu():
     tag menu
@@ -344,9 +358,9 @@ screen pause_menu():
         xalign 0.5
         yalign 0.62
         spacing 22
-        textbutton "Return to the scene" style "choice_button" xminimum 460 action Return() at soft_button
-        textbutton "Main Menu" style "choice_button" xminimum 460 action MainMenu() at soft_button
-        textbutton "Quit" style "choice_button" xminimum 460 action Quit(confirm=True) at soft_button
+        textbutton "Return to the scene" style "choice_button" xminimum 460 action Return()
+        textbutton "Main Menu" style "choice_button" xminimum 460 action MainMenu()
+        textbutton "Quit" style "choice_button" xminimum 460 action Quit(confirm=True)
 
 ## Always-available menu button (top-right), shown over every scene.
 screen nepo_menu_button():
@@ -382,8 +396,8 @@ screen confirm(message, yes_action, no_action):
             hbox:
                 xalign 0.5
                 spacing 60
-                textbutton "Yes" style "choice_button" xminimum 260 action yes_action at soft_button
-                textbutton "No" style "choice_button" xminimum 260 action no_action at soft_button
+                textbutton "Yes" style "choice_button" xminimum 260 action yes_action
+                textbutton "No" style "choice_button" xminimum 260 action no_action
 
 ## Handwritten margin note (meter changes), shown via renpy.notify
 screen notify(message):

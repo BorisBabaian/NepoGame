@@ -271,37 +271,102 @@ screen verdict_card(title, reputation, composure, roast, concepts):
 
 screen main_menu():
     tag menu
-    add "images/bg_paper.png"
+    add "images/menu_bg.png"
 
+    ## Title block, upper area.
     vbox:
         xalign 0.5
-        yalign 0.36
-        spacing 16
+        yalign 0.14
+        spacing 10
         text "BUSINESS & MANAGEMENT · IN A GLOBAL CONTEXT":
-            xalign 0.5 size 26 color nepo.ink_faint kerning 6
-        text "Nepo The Game" font nepo.serif_bold size 130 xalign 0.5
+            xalign 0.5 size 24 color nepo.ink_faint kerning 6
+        text "Nepo The Game" font nepo.serif_bold size 120 xalign 0.5
         text "You had a surname, a platinum card and a corner office.\nYou have lost all three. Earn them back.":
-            xalign 0.5 text_align 0.5 size 38 font nepo.serif_italic color nepo.ink_soft
+            xalign 0.5 text_align 0.5 size 34 font nepo.serif_italic color nepo.ink_soft
 
-    vbox:
+    ## Chapter select.
+    viewport:
         xalign 0.5
-        yalign 0.80
-        spacing 22
-        textbutton "Begin the Prologue" style "choice_button" action Start()
-        textbutton "Quit" style "choice_button" action Quit(confirm=True)
+        yalign 0.60
+        ysize 440
+        scrollbars "vertical"
+        mousewheel True
+        vbox:
+            spacing 16
+            xsize 1000
+            for ch in CHAPTERS:
+                button:
+                    style "chapter_button"
+                    if ch["available"]:
+                        action Start(ch["label"])
+                    else:
+                        sensitive False
+                    hbox:
+                        spacing 20
+                        vbox:
+                            spacing 2
+                            text ch["kicker"]:
+                                size 20 color nepo.ink_faint kerning 3
+                            text ch["title"]:
+                                size 36 font nepo.serif_bold color nepo.ink
+                        text ("▶" if ch["available"] else "locked"):
+                            xalign 1.0 yalign 0.5 size (30 if ch["available"] else 22)
+                            color (nepo.ink if ch["available"] else nepo.ink_faint)
+
+    textbutton "Quit":
+        style "choice_button"
+        xalign 0.5
+        yalign 0.94
+        xminimum 300
+        action Quit(confirm=True)
+
+style chapter_button is default:
+    xsize 1000
+    background Frame("gui/btn_idle.png", 20, 20)
+    hover_background Frame("gui/btn_hover.png", 20, 20)
+    insensitive_background Frame("gui/frame_ink.png", 20, 20)
+    padding (36, 20, 36, 22)
+
+style chapter_button_text:
+    color nepo.ink
+    hover_color nepo.paper
 
 screen pause_menu():
     tag menu
     modal True
-    add "#fcfbf7ee"
+    add "images/menu_bg.png"
 
     vbox:
         xalign 0.5
-        yalign 0.5
-        spacing 24
-        textbutton "Return" style "choice_button" action Return()
-        textbutton "Main Menu" style "choice_button" action MainMenu()
-        textbutton "Quit" style "choice_button" action Quit(confirm=True)
+        yalign 0.42
+        spacing 14
+        text "Paused" font nepo.serif_bold size 80 xalign 0.5
+        null height 20
+
+    vbox:
+        xalign 0.5
+        yalign 0.62
+        spacing 22
+        textbutton "Return to the scene" style "choice_button" xminimum 460 action Return()
+        textbutton "Main Menu" style "choice_button" xminimum 460 action MainMenu()
+        textbutton "Quit" style "choice_button" xminimum 460 action Quit(confirm=True)
+
+## Always-available menu button (top-right), shown over every scene.
+screen nepo_menu_button():
+    zorder 90
+    if not main_menu and not renpy.get_screen("pause_menu"):
+        textbutton "☰ Menu":
+            xalign 0.985
+            yalign 0.02
+            action ShowMenu("pause_menu")
+            text_style "menu_button_text"
+            background None
+
+style menu_button_text:
+    font nepo.serif
+    size 32
+    color nepo.ink_faint
+    hover_color nepo.ink
 
 screen confirm(message, yes_action, no_action):
     modal True

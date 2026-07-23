@@ -10,10 +10,10 @@ define config.has_sound = True
 define config.has_music = True
 define config.has_voice = False
 
-## No quick menu overlay — the interface stays clean, like the web mock.
-define config.overlay_screens = []
+## Always show our own compact menu button (top-right), nothing else.
+define config.overlay_screens = ["nepo_menu_button"]
 
-## Escape opens our minimal pause menu instead of the full game menu.
+## Escape / right-click open our minimal pause menu instead of the full game menu.
 define config.game_menu_action = ShowMenu("pause_menu")
 
 ## Transitions.

@@ -24,12 +24,12 @@ init python:
         if renpy.loadable(path):
             renpy.image("bg " + name, path)
         else:
-            renpy.image("bg " + name, Composite(
-                (1920, 1080),
-                (0, 0), "images/bg_paper.png",
-                (0, 0), Text("{i}(" + label + "){/i}", size=52, color="#8a8781",
-                             xalign=0.5, yalign=0.42, text_align=0.5, xsize=1400,
-                             substitute=False),
+            renpy.image("bg " + name, Fixed(
+                "images/bg_paper.png",
+                Text("{i}" + label + "{/i}", size=48, color="#8a8781",
+                     xalign=0.5, yalign=0.4, text_align=0.5, xsize=1300,
+                     substitute=False),
+                fit_first=True,
             ))
 
     for n, lbl in [
@@ -52,7 +52,20 @@ init python:
         renpy.notify(name.capitalize() + " " + sign + str(abs(delta)))
 
 
+## ── Chapter registry ─────────────────────────────────────────────────────────
+## The main menu builds its chapter list from this. Add entries as episodes are
+## written; set available False for ones not yet built (shown locked).
+define CHAPTERS = [
+    {"kicker": "Prologue",            "title": "How the Money Ends",     "label": "ch_prologue",   "available": True},
+    {"kicker": "Interlude",           "title": "The Application",         "label": "ch_application","available": False},
+    {"kicker": "Module 1 · Episode 1","title": "Day One",                 "label": "ch_dayone",     "available": False},
+    {"kicker": "Module 1 · Finale",   "title": "The Gala",                "label": "ch_gala",       "available": False},
+]
+
 label start:
+    jump ch_prologue
+
+label ch_prologue:
 
     scene bg wake with fade
     "Silk sheets. A canopy bed the size of a branch office. A bedroom with better square footage than most startups."
@@ -152,4 +165,18 @@ label start:
         "Course concepts ahead: drivers of globalisation · political risk · economic systems\ncultural dimensions · ethics and CSR · instruments of trade policy",
     )
 
+    return
+
+## Placeholder labels for chapters not yet written. Kept so the menu can link
+## them once available; currently they are locked in the chapter list.
+label ch_application:
+    "The Application — coming soon."
+    return
+
+label ch_dayone:
+    "Day One — coming soon."
+    return
+
+label ch_gala:
+    "The Gala — coming soon."
     return

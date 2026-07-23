@@ -256,7 +256,7 @@ screen verdict_card(title, reputation, composure, roast, concepts):
                         add Solid(nepo.ink) xysize (int(460 * value / 10.0), 24) yalign 0.5
                     text "[value]/10" size 36 yalign 0.5
             null height 12
-            text roast font nepo.serif_italic size 40 xalign 0.5 text_align 0.5
+            text roast font nepo.serif_italic italic True size 40 xalign 0.5 text_align 0.5
             text concepts size 28 color nepo.ink_soft xalign 0.5 text_align 0.5
 
     textbutton "Back to the chapters":
@@ -282,7 +282,7 @@ screen main_menu():
             xalign 0.5 size 24 color nepo.ink_faint kerning 6
         text "Nepo The Game" font nepo.serif_bold size 120 xalign 0.5
         text "You had a surname, a platinum card and a corner office.\nYou have lost all three. Earn them back.":
-            xalign 0.5 text_align 0.5 size 34 font nepo.serif_italic color nepo.ink_soft
+            xalign 0.5 text_align 0.5 size 34 font nepo.serif_italic italic True color nepo.ink_soft
 
     ## Chapter select.
     viewport:

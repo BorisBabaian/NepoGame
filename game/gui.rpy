@@ -4,15 +4,21 @@
 init python:
     gui.init(1920, 1080)
 
-    ## Fonts. Lora ships with the project (elegant serif, close to the web mock).
-    ## Drop CormorantGaramond / Caveat into game/fonts/ to match the web exactly.
-    def nepo_font(preferred, fallback):
-        return preferred if renpy.loadable(preferred) else fallback
+    ## Fonts. Picks the first file that actually exists, so the game never
+    ## crashes on a missing font. Drop CormorantGaramond / Caveat into
+    ## game/fonts/ (as you have) and they are used automatically.
+    def first_font(*candidates):
+        for c in candidates:
+            if renpy.loadable(c):
+                return c
+        return candidates[-1]
 
-define nepo.serif = nepo_font("fonts/CormorantGaramond-Medium.ttf", "fonts/Lora.ttf")
-define nepo.serif_bold = nepo_font("fonts/CormorantGaramond-Bold.ttf", "fonts/Lora.ttf")
-define nepo.serif_italic = nepo_font("fonts/Lora-Italic.ttf", "fonts/Lora-Italic.ttf")
-define nepo.hand = nepo_font("fonts/Caveat-Regular.ttf", "fonts/Lora-Italic.ttf")
+## Cormorant has no italic file here, so italics are synthesised from the
+## roman face (styles that want a slant set `italic True`).
+define nepo.serif = first_font("fonts/CormorantGaramond-Medium.ttf", "fonts/Lora.ttf", "fonts/DejaVuSerif.ttf")
+define nepo.serif_bold = first_font("fonts/CormorantGaramond-Bold.ttf", "fonts/Lora.ttf", "fonts/DejaVuSerif-Bold.ttf")
+define nepo.serif_italic = first_font("fonts/CormorantGaramond-Italic.ttf", "fonts/Lora-Italic.ttf", "fonts/CormorantGaramond-Medium.ttf", "fonts/DejaVuSerif.ttf")
+define nepo.hand = first_font("fonts/Caveat-Regular.ttf", "fonts/Lora-Italic.ttf", "fonts/DejaVuSerif-Italic.ttf")
 
 ## Palette (styles.css :root).
 define nepo.paper = "#fcfbf7"

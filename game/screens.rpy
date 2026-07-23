@@ -93,13 +93,14 @@ screen choice(items):
 
     vbox:
         for i in items:
-            textbutton i.caption action i.action at choice_lift
+            textbutton i.caption action i.action at soft_button
 
-transform choice_lift:
-    on hover:
-        linear 0.10 yoffset -3
-    on idle:
-        linear 0.10 yoffset 0
+## Smooth, web-like hover: gentle lift + zoom with eased timing.
+transform soft_button:
+    on idle, selected_idle, insensitive:
+        ease 0.16 zoom 1.0 yoffset 0
+    on hover, selected_hover:
+        ease 0.16 zoom 1.03 yoffset -5
 
 style choice_vbox:
     xalign 0.5
@@ -182,6 +183,7 @@ screen assignment_card(fromwho, objectives, stakes, accept="Understood."):
         xalign 0.5
         yalign 0.9
         action Return()
+        at soft_button
 
 transform rotate_note:
     rotate -2
@@ -210,7 +212,7 @@ screen mirror_select():
         yspacing 34
         for i in range(1, 7):
             imagebutton:
-                at choice_lift
+                at soft_button
                 idle Fixed(
                     Frame("gui/frame_ink.png", 16, 16),
                     Transform("images/portraits/p%d.png" % i, xysize=(280, 374), align=(0.5, 0.5)),
@@ -264,6 +266,7 @@ screen verdict_card(title, reputation, composure, roast, concepts):
         xalign 0.5
         yalign 0.92
         action Return()
+        at soft_button
 
 ################################################################################
 ## Main menu, pause, confirm, notify
@@ -312,6 +315,7 @@ screen main_menu():
         yalign 0.95
         xminimum 300
         action Quit(confirm=True)
+        at soft_button
 
 style chapter_button is default:
     xsize 1000
@@ -340,9 +344,9 @@ screen pause_menu():
         xalign 0.5
         yalign 0.62
         spacing 22
-        textbutton "Return to the scene" style "choice_button" xminimum 460 action Return()
-        textbutton "Main Menu" style "choice_button" xminimum 460 action MainMenu()
-        textbutton "Quit" style "choice_button" xminimum 460 action Quit(confirm=True)
+        textbutton "Return to the scene" style "choice_button" xminimum 460 action Return() at soft_button
+        textbutton "Main Menu" style "choice_button" xminimum 460 action MainMenu() at soft_button
+        textbutton "Quit" style "choice_button" xminimum 460 action Quit(confirm=True) at soft_button
 
 ## Always-available menu button (top-right), shown over every scene.
 screen nepo_menu_button():
@@ -378,8 +382,8 @@ screen confirm(message, yes_action, no_action):
             hbox:
                 xalign 0.5
                 spacing 60
-                textbutton "Yes" style "choice_button" xminimum 260 action yes_action
-                textbutton "No" style "choice_button" xminimum 260 action no_action
+                textbutton "Yes" style "choice_button" xminimum 260 action yes_action at soft_button
+                textbutton "No" style "choice_button" xminimum 260 action no_action at soft_button
 
 ## Handwritten margin note (meter changes), shown via renpy.notify
 screen notify(message):

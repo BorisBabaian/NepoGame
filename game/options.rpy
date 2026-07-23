@@ -25,5 +25,9 @@ define config.window_show_transition = Dissolve(0.2)
 
 define config.window = "auto"
 
+## Letterbox bars (shown on aspect ratios other than 16:10) are paper white,
+## not black, so they read as an intentional margin rather than a defect.
+define config.gl_clear_color = "#fcfbf7"
+
 define config.save_directory = "NepoGame-1"
 define config.window_icon = None

@@ -55,15 +55,19 @@ init python:
 ## ── Chapter registry ─────────────────────────────────────────────────────────
 ## The main menu builds its chapter list from this. Add entries as episodes are
 ## written; set available False for ones not yet built (shown locked).
-## Chapter list. kicker_line / title_line are the exact strings the menu prints,
+## Chapter list. menu_caption is the exact two-line string the menu card prints,
 ## precomputed here so the screen stays simple. Locked chapters get "· LOCKED".
 init python:
     def _chapter(kicker, time, title, label, available):
+        kline = kicker.upper() + ("" if available else "   ·   LOCKED")
+        tline = "%s: %s." % (time, title)
+        # Two-line card caption: small faint kicker over the bigger title. The
+        # {alpha} tag keeps the kicker faint on both the paper and the ink state.
+        caption = "{size=19}{alpha=0.6}%s{/alpha}{/size}\n{size=32}%s" % (kline, tline)
         return {
             "label": label,
             "available": available,
-            "kicker_line": kicker.upper() + ("" if available else " · LOCKED"),
-            "title_line": "%s: %s." % (time, title),
+            "menu_caption": caption,
         }
 
 define CHAPTERS = [

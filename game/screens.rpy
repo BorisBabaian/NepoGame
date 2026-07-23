@@ -85,47 +85,74 @@ style continue_hint:
     yalign 0.995
 
 ################################################################################
-## Choice — ink buttons that invert to solid ink with paper text on hover
+## Buttons — one reusable button with a smooth cross-fade hover.
+## The idle (paper) and hover (solid-ink) looks are two stacked layers that
+## cross-fade over 0.14s, so the fill and the text colour ease together instead
+## of snapping — matching the web version's `transition: 0.14s ease`.
 ################################################################################
 
-screen choice(items):
-    style_prefix "choice"
+## caption may be one or two lines (use {size=..} tags for a two-line card).
+screen xbutton(caption, act, width=720, dim=False):
+    button:
+        action act
+        at dimmed(0.5 if dim else 1.0)
+        fixed:
+            fit_first True
+            frame:
+                background Frame("gui/btn_idle.png", 40, 30)
+                xsize width
+                padding (30, 16, 30, 18)
+                at hv_hide
+                text caption color nepo.ink size 30 xfill True text_align 0.5 line_spacing 2
+            frame:
+                background Frame("gui/btn_hover.png", 40, 30)
+                xsize width
+                padding (30, 16, 30, 18)
+                at hv_show
+                text caption color nepo.paper size 30 xfill True text_align 0.5 line_spacing 2
 
-    vbox:
-        for i in items:
-            textbutton i.caption action i.action
+## Cross-fade pair: idle layer at rest, hover layer on hover. These respond to
+## the enclosing button's focus because the transform is its child.
+transform hv_hide:
+    alpha 1.0
+    on hover, selected_hover:
+        ease 0.14 alpha 0.0
+    on idle, selected_idle:
+        ease 0.14 alpha 1.0
 
-## Portraits are images, so they cannot colour-invert like the text buttons.
-## They get a gentle zoom on hover instead.
+transform hv_show:
+    alpha 0.0
+    on hover, selected_hover:
+        ease 0.14 alpha 1.0
+    on idle, selected_idle:
+        ease 0.14 alpha 0.0
+
+## Portraits are images, so they cannot colour-invert; a gentle zoom instead.
 transform portrait_hover:
     on idle, selected_idle:
         ease 0.15 zoom 1.0
     on hover, selected_hover:
         ease 0.15 zoom 1.04
 
-## Locked chapter cards are dimmed; they still fill (grey) on hover, like the web.
-transform faded:
-    alpha 0.5
+## Locked chapter cards are dimmed to 50%; they still fill (grey) on hover.
+transform dimmed(a=1.0):
+    alpha a
+
+################################################################################
+## Choice — in-scene dialogue options.
+################################################################################
+
+screen choice(items):
+    style_prefix "choice"
+    vbox:
+        style "choice_vbox"
+        for i in items:
+            use xbutton(i.caption, i.action, 860)
 
 style choice_vbox:
     xalign 0.5
     yalign 0.42
-    spacing gui.choice_spacing
-
-style choice_button is default:
-    xminimum gui.choice_button_width
-    xmaximum gui.choice_button_width
-    background Frame("gui/btn_idle.png", 20, 20)
-    hover_background Frame("gui/btn_hover.png", 20, 20)
-    padding (40, 22, 40, 26)
-
-style choice_button_text is default:
-    font nepo.serif
-    color nepo.ink
-    hover_color nepo.paper
-    size gui.choice_button_text_size
-    xalign 0.5
-    text_align 0.5
+    spacing 18
 
 ################################################################################
 ## Input — the badge printer line
@@ -183,11 +210,10 @@ screen assignment_card(fromwho, objectives, stakes, accept="Understood."):
                 text stakes style "hand_note" xalign 0.5 text_align 0.5
             text "— [fromwho]" style "hand_note" xalign 1.0 at rotate_note
 
-    textbutton accept:
-        style "choice_button"
+    vbox:
         xalign 0.5
         yalign 0.9
-        action Return()
+        use xbutton(accept, Return(), 600)
 
 transform rotate_note:
     rotate -2
@@ -258,18 +284,17 @@ screen verdict_card(title, reputation, composure, roast, concepts):
                     fixed:
                         xysize (460, 24)
                         yalign 0.5
-                        add Frame("gui/btn_idle.png", 8, 8) xysize (460, 24)
+                        add Solid("#e6e4dc") xysize (460, 24)
                         add Solid(nepo.ink) xysize (int(460 * value / 10.0), 24) yalign 0.5
                     text "[value]/10" size 36 yalign 0.5
             null height 12
             text roast font nepo.serif_italic italic True size 40 xalign 0.5 text_align 0.5
             text concepts size 28 color nepo.ink_soft xalign 0.5 text_align 0.5
 
-    textbutton "Back to the chapters":
-        style "choice_button"
+    vbox:
         xalign 0.5
         yalign 0.92
-        action Return()
+        use xbutton("Back to the chapters", Return(), 560)
 
 ################################################################################
 ## Main menu, pause, confirm, notify
@@ -285,62 +310,27 @@ screen main_menu():
         yalign 0.12
         spacing 10
         text "BUSINESS AND MANAGEMENT IN A GLOBAL CONTEXT":
-            xalign 0.5 size 24 color nepo.ink_faint kerning 6
-        text "Nepo The Game" font nepo.serif_bold size 120 xalign 0.5
+            xalign 0.5 size 21 color nepo.ink_faint kerning 7
+        text "Nepo The Game" font nepo.serif_bold size 92 xalign 0.5
         text "You had a surname, a platinum card and a corner office.\nYou have lost all three. Earn them back.":
-            xalign 0.5 text_align 0.5 size 34 font nepo.serif_italic italic True color nepo.ink_soft
+            xalign 0.5 text_align 0.5 size 29 font nepo.serif_italic italic True color nepo.ink_soft
 
-    ## Chapter select — centered cards that fill on hover, exactly like the web
-    ## version. Available cards invert to solid ink with paper text; locked cards
-    ## are dimmed and fill grey. A two-line label: kicker over "TIME: Title."
+    ## Chapter select — cards that cross-fade to solid ink on hover, exactly like
+    ## the web. Locked cards are dimmed and fill grey; a click explains why.
     vbox:
         xalign 0.5
         yalign 0.56
-        spacing 14
+        spacing 16
         for ch in CHAPTERS:
-            button:
-                style "chapter_button"
-                if ch["available"]:
-                    action Start(ch["label"])
-                else:
-                    action Function(renpy.notify, "Locked — finish the previous chapter first.")
-                    at faded
-                vbox:
-                    xfill True
-                    spacing 4
-                    text ch["kicker_line"] style "chapter_kicker"
-                    text ch["title_line"] style "chapter_title"
+            if ch["available"]:
+                use xbutton(ch["menu_caption"], Start(ch["label"]), 760)
+            else:
+                use xbutton(ch["menu_caption"], Function(renpy.notify, "Locked — finish the previous chapter first."), 760, True)
 
-    textbutton "Quit":
-        style "choice_button"
+    vbox:
         xalign 0.5
         yalign 0.95
-        xminimum 300
-        action Quit(confirm=True)
-
-style chapter_button is default:
-    xsize 1000
-    xalign 0.5
-    background Frame("gui/btn_idle.png", 20, 20)
-    hover_background Frame("gui/btn_hover.png", 20, 20)
-    padding (40, 18, 40, 22)
-
-style chapter_kicker is default:
-    font nepo.serif
-    size 22
-    kerning 4
-    color nepo.ink_faint
-    hover_color nepo.paper
-    xfill True
-    text_align 0.5
-
-style chapter_title is default:
-    font nepo.serif_bold
-    size 40
-    color nepo.ink
-    hover_color nepo.paper
-    xfill True
-    text_align 0.5
+        use xbutton("Quit", Quit(confirm=True), 300)
 
 screen pause_menu():
     tag menu
@@ -357,10 +347,10 @@ screen pause_menu():
     vbox:
         xalign 0.5
         yalign 0.62
-        spacing 22
-        textbutton "Return to the scene" style "choice_button" xminimum 460 action Return()
-        textbutton "Main Menu" style "choice_button" xminimum 460 action MainMenu()
-        textbutton "Quit" style "choice_button" xminimum 460 action Quit(confirm=True)
+        spacing 18
+        use xbutton("Return to the scene", Return(), 480)
+        use xbutton("Main Menu", MainMenu(), 480)
+        use xbutton("Quit", Quit(confirm=True), 480)
 
 ## Always-available menu button (top-right), shown over every scene.
 screen nepo_menu_button():
@@ -395,9 +385,9 @@ screen confirm(message, yes_action, no_action):
             text message xalign 0.5 text_align 0.5 size 42
             hbox:
                 xalign 0.5
-                spacing 60
-                textbutton "Yes" style "choice_button" xminimum 260 action yes_action
-                textbutton "No" style "choice_button" xminimum 260 action no_action
+                spacing 40
+                use xbutton("Yes", yes_action, 240)
+                use xbutton("No", no_action, 240)
 
 ## Handwritten margin note (meter changes), shown via renpy.notify
 screen notify(message):

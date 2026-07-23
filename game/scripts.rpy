@@ -1,12 +1,12 @@
-## Nepo The Game — Prologue mock. Content follows docs/scenario.tex (bm-game).
-## Demonstrates every design component: panels, dialogue, choices with margin
-## notes, the mirror (character creation), the badge printer (name entry),
-## the assignment card and the verdict card. Mechanics come later.
+## Nepo The Game — Prologue. Full-screen visual novel.
+## Backgrounds fill the screen; the dialogue bar and namebox overlay the bottom.
+## Content follows docs/scenario.tex. Mechanics come later.
 
+## ── Characters (the name appears in the namebox) ─────────────────────────────
 define narrator = Character(None)
-define nestor = Character("NESTOR, THE BUTLER")
-define father = Character("FATHER")
-define vergeau = Character("MME VERGEAU")
+define nestor = Character("Nestor")
+define father = Character("Father")
+define vergeau = Character("Mme Vergeau")
 define you = Character("[player_name]")
 
 default portrait_id = 1
@@ -14,39 +14,58 @@ default player_name = "Analyst"
 default reputation = 5
 default composure = 5
 
+## ── Backgrounds ──────────────────────────────────────────────────────────────
+## Each resolves to images/bg/<name>.png (full 1920x1080). Until the art exists,
+## a labelled paper placeholder is shown so the scene still plays.
 init python:
+    import os
+    def bg(name, label):
+        path = "images/bg/%s.png" % name
+        if renpy.loadable(path):
+            renpy.image("bg " + name, path)
+        else:
+            renpy.image("bg " + name, Composite(
+                (1920, 1080),
+                (0, 0), "images/bg_paper.png",
+                (0, 0), Text("{i}[" + label + "]{/i}", size=52, color="#8a8781",
+                             xalign=0.5, yalign=0.42, text_align=0.5, xsize=1400),
+            ))
+
+    for n, lbl in [
+        ("wake", "bedroom, silk sheets, decorative alarm at 10:47"),
+        ("mirror", "gilded bathroom mirror"),
+        ("hall", "breakfast hall, table for forty set for two"),
+        ("card", "Visa Platinum locked in a velvet box"),
+        ("monday", "office tower forecourt, convertible across two spaces"),
+        ("office", "corner office, floor 67, a plant taller than a career"),
+        ("coffee", "the coffee point, two espresso cups"),
+        ("badge", "a badge printer, waking with bureaucratic enthusiasm"),
+        ("descent", "the glass lift descending 67 to 3"),
+    ]:
+        bg(n, lbl)
+
     def meter(name, delta):
-        store_val = getattr(store, name) + delta
-        setattr(store, name, max(0, min(10, store_val)))
+        v = max(0, min(10, getattr(store, name) + delta))
+        setattr(store, name, v)
         sign = "+" if delta > 0 else "−"
         renpy.notify(name.capitalize() + " " + sign + str(abs(delta)))
 
+
 label start:
 
-    scene bg_paper with fade
-
-    ## ── The estate ─────────────────────────────────────────────────────────
-    show screen panel("images/panels/wake.png" if renpy.loadable("images/panels/wake.png") else "images/panels/placeholder.png")
-    with dissolve
-
+    scene bg wake with fade
     "Silk sheets. A canopy bed the size of a branch office. A bedroom with better square footage than most startups."
     "The alarm clock has been set to 'decorative' since 2019."
 
-    hide screen panel with dissolve
-
-    ## ── The mirror: character creation ─────────────────────────────────────
+    scene bg mirror with dissolve
     "The bathroom. Heated marble. Eleven kinds of soap, none ever opened. And the mirror. Gilded, generous, and extremely well paid."
 
     call screen mirror_select
-
     "Yes. That one. Obviously."
 
     nestor "Your father requests your presence at breakfast. He used the word 'requests' loosely."
 
-    ## ── Breakfast ──────────────────────────────────────────────────────────
-    show screen panel("images/panels/hall.png" if renpy.loadable("images/panels/hall.png") else "images/panels/placeholder.png")
-    with dissolve
-
+    scene bg hall with dissolve
     "11:15 AM. The breakfast hall. A table for forty, set for two."
     "At the far end, behind a financial newspaper: Father. The front page shows a yacht, a harbour, and a crane lifting something that used to be expensive."
 
@@ -62,8 +81,7 @@ label start:
 
     father "A margin is what your yacht did to the harbour master's boat in Portofino. The fine has six digits. I have paid it. That was the last time."
 
-    hide screen panel with dissolve
-
+    scene bg card with dissolve
     "Nestor appears with a small velvet box, held like a coffin at a state funeral. The Visa Platinum is placed inside. The lock clicks with terrible finality."
 
     father "You start Monday. Vice Head of Special Projects at McQuinsey and Company."
@@ -73,18 +91,16 @@ label start:
     "The newspaper rises again like a drawbridge. The audience is over."
     "The weekend passes through the five stages of grief. By Sunday night, acceptance arrives wearing Nestor's face, laying out a suit like armor for a war somebody else has chosen."
 
-    ## ── Monday ─────────────────────────────────────────────────────────────
-    show screen panel("images/panels/monday.png" if renpy.loadable("images/panels/monday.png") else "images/panels/placeholder.png")
-    with dissolve
-
+    scene bg monday with dissolve
     "8:58 AM, Monday. The convertible is parked across two spaces. One of them belongs to the CFO."
+
+    scene bg office with dissolve
     "Floor 67. Corner office. Two windows. A plant taller than your career."
     "You open Excel. A full screen of cells stares back. You stare. The cells win. The laptop closes. A dating app opens."
 
-    hide screen panel with dissolve
-
     vergeau "Oh. You are the new one! Come. Coffee. It is not optional here, like breathing."
 
+    scene bg coffee with dissolve
     "10:30 AM. The coffee point. Small talk, it turns out, is the one market where you hold a monopoly."
 
     vergeau "So. Our client's margin is collapsing in the DACH region. Your read?"
@@ -98,13 +114,11 @@ label start:
             $ meter("reputation", -2)
 
     vergeau "How does a person who cannot read a P and L become Vice Head of Special..."
-
     "Her eyes drop to your badge. P. VAULMONT. A pause the length of a fiscal quarter."
-
     vergeau "Ah. Now I understand."
     vergeau "Under my leadership, no nepotism. Out of respect for your father, you are not fired. Out of respect for the firm, you are no longer Vice Head of anything."
 
-    ## ── The badge printer: name entry ──────────────────────────────────────
+    scene bg badge with dissolve
     "She takes the badge with two fingers, the way one removes evidence. A badge printer wakes up with bureaucratic enthusiasm."
 
     $ player_name = renpy.input("\"First name,\" she says, not looking up.", default="", length=16).strip() or "Analyst"
@@ -114,10 +128,10 @@ label start:
 
     vergeau "Here, you have no surname. You will earn one back. Or you will not."
 
+    scene bg descent with dissolve
     "The lift descends from 67 to 3 in silence. The smallest desk on the open floor waits beside the printer."
     "And so, at the printer desk, the game begins."
 
-    ## ── Component demo: the assignment card (for the next episodes) ────────
     call screen assignment_card(
         "Mme Vergeau",
         [
@@ -129,7 +143,6 @@ label start:
         "Understood. Invisible. Memorable. Both.",
     )
 
-    ## ── Verdict ────────────────────────────────────────────────────────────
     call screen verdict_card(
         "Day Zero, Reviewed",
         reputation,

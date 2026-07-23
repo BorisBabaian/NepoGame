@@ -1,4 +1,4 @@
-## Nepo The Game — screens. Compact set, styled to the ink and paper design code.
+## Nepo The Game — screens. Full-screen visual novel, ink and paper design code.
 
 ################################################################################
 ## Core styles
@@ -18,14 +18,17 @@ style button_text:
 style hand_note:
     font nepo.hand
     color nepo.ink_soft
-    size 44
+    size 48
 
 ################################################################################
-## Say (dialogue) — white ink framed box, centered speaker name above the line
+## Say (dialogue) — bottom VN bar, dark namebox pill with the speaker's name
 ################################################################################
 
 screen say(who, what):
     style_prefix "say"
+
+    ## soft paper vignette so text reads over any illustration
+    add "images/vignette.png"
 
     window:
         id "window"
@@ -38,36 +41,51 @@ screen say(who, what):
 
         text what id "what"
 
+    ## click-anywhere advance, plus a quiet hint
+    if not renpy.get_screen("choice"):
+        text "click to continue" style "continue_hint"
+
 style window:
     xalign 0.5
-    xsize 1400
-    yalign gui.textbox_yalign
+    xsize 1500
+    yalign 1.0
     ysize gui.textbox_height
-    background Frame("gui/textbox.png", 24, 24, tile=False)
+    background Frame("gui/textbox.png", 40, 40, tile=False)
     bottom_margin 40
 
 style namebox:
     xpos 0.5
     xanchor 0.5
     ypos gui.name_ypos
-    background Frame("gui/btn_hover.png", 12, 12)
-    padding (28, 6, 28, 8)
+    background Frame("gui/namebox.png", 30, 12)
+    padding (34, 8, 34, 12)
 
 style say_label:
     font nepo.serif_bold
     color nepo.paper
     size gui.name_text_size
     xalign 0.5
+    kerning 2
 
 style say_dialogue:
+    font nepo.serif
+    color nepo.ink
     xalign 0.5
     xsize gui.dialogue_width
     ypos gui.dialogue_ypos
     text_align 0.5
-    line_spacing 6
+    line_spacing 8
+
+style continue_hint:
+    font nepo.serif
+    italic True
+    color nepo.ink_faint
+    size 26
+    xalign 0.98
+    yalign 0.995
 
 ################################################################################
-## Choice — ink bordered buttons that invert on hover
+## Choice — ink buttons with drop shadow, invert and lift on hover
 ################################################################################
 
 screen choice(items):
@@ -75,25 +93,31 @@ screen choice(items):
 
     vbox:
         for i in items:
-            textbutton i.caption action i.action
+            textbutton i.caption action i.action at choice_lift
+
+transform choice_lift:
+    on hover:
+        linear 0.10 yoffset -3
+    on idle:
+        linear 0.10 yoffset 0
 
 style choice_vbox:
     xalign 0.5
-    ypos 340
-    spacing 22
+    yalign 0.42
+    spacing gui.choice_spacing
 
-style choice_button:
+style choice_button is default:
     xminimum gui.choice_button_width
     xmaximum gui.choice_button_width
-    background Frame("gui/btn_idle.png", 12, 12)
-    hover_background Frame("gui/btn_hover.png", 12, 12)
-    padding (36, 20, 36, 22)
+    background Frame("gui/btn_idle.png", 20, 20)
+    hover_background Frame("gui/btn_hover.png", 20, 20)
+    padding (40, 22, 40, 26)
 
-style choice_button_text:
+style choice_button_text is default:
     font nepo.serif
     color nepo.ink
     hover_color nepo.paper
-    size 36
+    size gui.choice_button_text_size
     xalign 0.5
     text_align 0.5
 
@@ -103,45 +127,26 @@ style choice_button_text:
 
 screen input(prompt):
     style_prefix "input"
+    add "images/vignette.png"
 
     window:
         vbox:
             xalign 0.5
-            ypos gui.dialogue_ypos
-            spacing 24
+            yalign 0.5
+            spacing 30
             text prompt style "input_prompt"
             input id "input"
 
 style input_prompt:
     xalign 0.5
     text_align 0.5
-    size 38
+    size 42
+    xsize 1200
 
 style input:
     xalign 0.5
-    size 46
+    size 54
     color nepo.ink
-    caret_blink True
-
-################################################################################
-## Ink panel — the comic frame with offset shadow (InkFrame from the web mock)
-################################################################################
-
-transform panel_pos:
-    xalign 0.5
-    yalign 0.28
-
-screen panel(path="images/panels/placeholder.png"):
-    zorder 5
-    add At(
-        Fixed(
-            Transform(Frame("gui/btn_hover.png", 12, 12), xoffset=10, yoffset=12),
-            Frame("gui/frame_ink.png", 12, 12),
-            Transform(path, xysize=(1132, 850), align=(0.5, 0.5)),
-            xysize=(1160, 870),
-        ),
-        panel_pos,
-    )
 
 ################################################################################
 ## The Assignment card (task node)
@@ -153,31 +158,30 @@ screen assignment_card(fromwho, objectives, stakes, accept="Understood."):
 
     frame:
         xalign 0.5
-        yalign 0.42
-        xsize 1100
-        background Frame("gui/frame_double.png", 20, 20)
-        padding (60, 50, 60, 44)
+        yalign 0.4
+        xsize 1200
+        background Frame("gui/frame_double.png", 24, 24)
+        padding (70, 56, 70, 50)
 
         vbox:
-            spacing 22
-            text "THE ASSIGNMENT" font nepo.serif_bold color nepo.ink size 30 xalign 0.5 kerning 6
-            null height 4
+            spacing 24
+            text "THE ASSIGNMENT" font nepo.serif_bold color nepo.ink size 32 xalign 0.5 kerning 8
+            null height 6
             for idx, obj in enumerate(objectives, start=1):
                 hbox:
-                    spacing 18
-                    text "[idx]." font nepo.serif_bold size 36
-                    text obj size 36
+                    spacing 20
+                    text "[idx]." font nepo.serif_bold size 40
+                    text obj size 40
             if stakes:
-                null height 6
+                null height 8
                 text stakes style "hand_note" xalign 0.5 text_align 0.5
             text "— [fromwho]" style "hand_note" xalign 1.0 at rotate_note
 
     textbutton accept:
         style "choice_button"
         xalign 0.5
-        yalign 0.92
+        yalign 0.9
         action Return()
-        text_style "choice_button_text"
 
 transform rotate_note:
     rotate -2
@@ -192,29 +196,30 @@ screen mirror_select():
 
     vbox:
         xalign 0.5
-        yalign 0.08
+        yalign 0.06
         spacing 30
         text "The mirror has been paid to be kind.\nChoose the face it shows you.":
             xalign 0.5
             text_align 0.5
-            size 44
+            size 46
 
     grid 3 2:
         xalign 0.5
-        yalign 0.62
-        spacing 34
+        yalign 0.60
+        xspacing 40
+        yspacing 34
         for i in range(1, 7):
             imagebutton:
+                at choice_lift
                 idle Fixed(
-                    Frame("gui/frame_ink.png", 12, 12),
-                    Transform("images/portraits/p%d.png" % i, xysize=(268, 358), align=(0.5, 0.5)),
-                    xysize=(280, 370),
+                    Frame("gui/frame_ink.png", 16, 16),
+                    Transform("images/portraits/p%d.png" % i, xysize=(280, 374), align=(0.5, 0.5)),
+                    xysize=(296, 390),
                 )
                 hover Fixed(
-                    Transform(Frame("gui/btn_hover.png", 12, 12), xoffset=6, yoffset=8),
-                    Frame("gui/frame_ink.png", 12, 12),
-                    Transform("images/portraits/p%d.png" % i, xysize=(268, 358), align=(0.5, 0.5)),
-                    xysize=(280, 370),
+                    Frame("gui/frame_ink.png", 16, 16),
+                    Transform("images/portraits/p%d.png" % i, xysize=(280, 374), align=(0.5, 0.5)),
+                    xysize=(296, 390),
                 )
                 action [SetVariable("portrait_id", i), Return(i)]
 
@@ -228,38 +233,37 @@ screen verdict_card(title, reputation, composure, roast, concepts):
 
     frame:
         xalign 0.5
-        yalign 0.4
-        xsize 1100
-        background Frame("gui/frame_ink.png", 20, 20)
-        padding (60, 50, 60, 44)
+        yalign 0.38
+        xsize 1200
+        background Frame("gui/frame_ink.png", 24, 24)
+        padding (70, 56, 70, 50)
 
         vbox:
-            spacing 20
+            spacing 22
             text "PERFORMANCE REVIEW · STRICTLY CONFIDENTIAL":
-                xalign 0.5 size 24 color nepo.ink_faint kerning 5
-            text title font nepo.serif_bold size 52 xalign 0.5
-            null height 8
+                xalign 0.5 size 26 color nepo.ink_faint kerning 6
+            text title font nepo.serif_bold size 60 xalign 0.5
+            null height 10
             for label_text, value in [("Reputation", reputation), ("Composure", composure)]:
                 hbox:
                     xalign 0.5
-                    spacing 24
-                    text label_text size 34 min_width 260 text_align 1.0
+                    spacing 26
+                    text label_text size 38 min_width 280 text_align 1.0 yalign 0.5
                     fixed:
-                        xysize (420, 22)
+                        xysize (460, 24)
                         yalign 0.5
-                        add Frame("gui/btn_idle.png", 8, 8) xysize (420, 22)
-                        add Solid(nepo.ink) xysize (int(420 * value / 10.0), 22)
-                    text "[value]/10" size 32
-            null height 10
-            text roast italic True size 36 xalign 0.5 text_align 0.5
-            text concepts size 26 color nepo.ink_soft xalign 0.5 text_align 0.5
+                        add Frame("gui/btn_idle.png", 8, 8) xysize (460, 24)
+                        add Solid(nepo.ink) xysize (int(460 * value / 10.0), 24) yalign 0.5
+                    text "[value]/10" size 36 yalign 0.5
+            null height 12
+            text roast font nepo.serif_italic size 40 xalign 0.5 text_align 0.5
+            text concepts size 28 color nepo.ink_soft xalign 0.5 text_align 0.5
 
     textbutton "Back to the chapters":
         style "choice_button"
         xalign 0.5
-        yalign 0.93
+        yalign 0.92
         action Return()
-        text_style "choice_button_text"
 
 ################################################################################
 ## Main menu, pause, confirm, notify
@@ -271,20 +275,20 @@ screen main_menu():
 
     vbox:
         xalign 0.5
-        yalign 0.4
+        yalign 0.36
         spacing 16
         text "BUSINESS & MANAGEMENT · IN A GLOBAL CONTEXT":
-            xalign 0.5 size 24 color nepo.ink_faint kerning 6
-        text "Nepo The Game" font nepo.serif_bold size 120 xalign 0.5
+            xalign 0.5 size 26 color nepo.ink_faint kerning 6
+        text "Nepo The Game" font nepo.serif_bold size 130 xalign 0.5
         text "You had a surname, a platinum card and a corner office.\nYou have lost all three. Earn them back.":
-            xalign 0.5 text_align 0.5 size 34 italic True color nepo.ink_soft
+            xalign 0.5 text_align 0.5 size 38 font nepo.serif_italic color nepo.ink_soft
 
     vbox:
         xalign 0.5
-        yalign 0.82
-        spacing 20
-        textbutton "Begin the Prologue" style "choice_button" text_style "choice_button_text" action Start()
-        textbutton "Quit" style "choice_button" text_style "choice_button_text" action Quit(confirm=True)
+        yalign 0.80
+        spacing 22
+        textbutton "Begin the Prologue" style "choice_button" action Start()
+        textbutton "Quit" style "choice_button" action Quit(confirm=True)
 
 screen pause_menu():
     tag menu
@@ -294,10 +298,10 @@ screen pause_menu():
     vbox:
         xalign 0.5
         yalign 0.5
-        spacing 22
-        textbutton "Return" style "choice_button" text_style "choice_button_text" action Return()
-        textbutton "Main Menu" style "choice_button" text_style "choice_button_text" action MainMenu()
-        textbutton "Quit" style "choice_button" text_style "choice_button_text" action Quit(confirm=True)
+        spacing 24
+        textbutton "Return" style "choice_button" action Return()
+        textbutton "Main Menu" style "choice_button" action MainMenu()
+        textbutton "Quit" style "choice_button" action Quit(confirm=True)
 
 screen confirm(message, yes_action, no_action):
     modal True
@@ -307,26 +311,25 @@ screen confirm(message, yes_action, no_action):
     frame:
         xalign 0.5
         yalign 0.5
-        xsize 900
-        background Frame("gui/frame_ink.png", 20, 20)
-        padding (60, 50, 60, 44)
+        xsize 1000
+        background Frame("gui/frame_ink.png", 24, 24)
+        padding (70, 56, 70, 50)
         vbox:
-            spacing 34
-            text message xalign 0.5 text_align 0.5 size 38
+            spacing 40
+            text message xalign 0.5 text_align 0.5 size 42
             hbox:
                 xalign 0.5
                 spacing 60
-                textbutton "Yes" style "choice_button" xminimum 240 text_style "choice_button_text" action yes_action
-                textbutton "No" style "choice_button" xminimum 240 text_style "choice_button_text" action no_action
+                textbutton "Yes" style "choice_button" xminimum 260 action yes_action
+                textbutton "No" style "choice_button" xminimum 260 action no_action
 
-## Handwritten margin note (meter changes) — shown via renpy.notify
+## Handwritten margin note (meter changes), shown via renpy.notify
 screen notify(message):
     zorder 100
-    text message style "hand_note" xalign 0.86 yalign 0.12 at notify_appear
-
+    text message style "hand_note" xalign 0.88 yalign 0.10 at notify_appear
     timer 3.0 action Hide("notify")
 
 transform notify_appear:
-    alpha 0
-    rotate -2
+    alpha 0.0
+    rotate -3
     linear 0.25 alpha 1.0

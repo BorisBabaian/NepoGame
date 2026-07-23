@@ -1,18 +1,18 @@
 ## Nepo The Game — design code (mirrors bm-game/src/styles.css).
-## Paper white ground, ink black line work, serif narration, handwritten notes.
+## Paper white ground, ink black line work, elegant serif, full-screen VN.
 
 init python:
     gui.init(1920, 1080)
 
-    ## Fonts. Drop CormorantGaramond-Medium.ttf, CormorantGaramond-Bold.ttf and
-    ## Caveat-Regular.ttf into game/fonts/ for the exact web look.
-    ## Until then the bundled DejaVu Serif is the stand in.
+    ## Fonts. Lora ships with the project (elegant serif, close to the web mock).
+    ## Drop CormorantGaramond / Caveat into game/fonts/ to match the web exactly.
     def nepo_font(preferred, fallback):
         return preferred if renpy.loadable(preferred) else fallback
 
-define nepo.serif = nepo_font("fonts/CormorantGaramond-Medium.ttf", "fonts/DejaVuSerif.ttf")
-define nepo.serif_bold = nepo_font("fonts/CormorantGaramond-Bold.ttf", "fonts/DejaVuSerif-Bold.ttf")
-define nepo.hand = nepo_font("fonts/Caveat-Regular.ttf", "fonts/DejaVuSerif-Italic.ttf")
+define nepo.serif = nepo_font("fonts/CormorantGaramond-Medium.ttf", "fonts/Lora.ttf")
+define nepo.serif_bold = nepo_font("fonts/CormorantGaramond-Bold.ttf", "fonts/Lora.ttf")
+define nepo.serif_italic = nepo_font("fonts/Lora-Italic.ttf", "fonts/Lora-Italic.ttf")
+define nepo.hand = nepo_font("fonts/Caveat-Regular.ttf", "fonts/Lora-Italic.ttf")
 
 ## Palette (styles.css :root).
 define nepo.paper = "#fcfbf7"
@@ -32,23 +32,29 @@ define gui.text_font = nepo.serif
 define gui.name_text_font = nepo.serif_bold
 define gui.interface_text_font = nepo.serif
 
-define gui.text_size = 40
+## A touch bigger for a proper serif; Lora runs small.
+define gui.text_size = 44
 define gui.name_text_size = 30
-define gui.interface_text_size = 36
-define gui.notify_text_size = 40
+define gui.interface_text_size = 38
+define gui.notify_text_size = 42
 
 define gui.main_menu_background = "images/bg_paper.png"
 define gui.game_menu_background = "images/bg_paper.png"
 
-## Dialogue window geometry.
-define gui.textbox_height = 300
+## Dialogue window (bottom VN bar).
+define gui.textbox_height = 320
 define gui.textbox_yalign = 1.0
 
+define gui.dialogue_width = 1360
+define gui.dialogue_ypos = 96
+define gui.dialogue_text_xalign = 0.5
+
+## Namebox — dark pill sitting on top edge of the textbox.
 define gui.name_xpos = 0.5
 define gui.name_xalign = 0.5
-define gui.name_ypos = -26
+define gui.name_ypos = -34
 
-define gui.dialogue_xpos = 360
-define gui.dialogue_width = 1200
-define gui.dialogue_ypos = 78
-define gui.dialogue_text_xalign = 0.5
+## Choice buttons.
+define gui.choice_button_width = 1100
+define gui.choice_button_text_size = 38
+define gui.choice_spacing = 24

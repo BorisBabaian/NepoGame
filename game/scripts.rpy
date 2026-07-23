@@ -27,8 +27,9 @@ init python:
             renpy.image("bg " + name, Composite(
                 (1920, 1080),
                 (0, 0), "images/bg_paper.png",
-                (0, 0), Text("{i}[" + label + "]{/i}", size=52, color="#8a8781",
-                             xalign=0.5, yalign=0.42, text_align=0.5, xsize=1400),
+                (0, 0), Text("{i}(" + label + "){/i}", size=52, color="#8a8781",
+                             xalign=0.5, yalign=0.42, text_align=0.5, xsize=1400,
+                             substitute=False),
             ))
 
     for n, lbl in [

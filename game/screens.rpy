@@ -305,6 +305,8 @@ screen main_menu():
     ## Scale the art to fill the 16:10 canvas (source may be any size), so there
     ## are never black edges if the uploaded image is not exactly 1920x1200.
     add Transform("images/menu_bg.png", fit="cover", xysize=(1920, 1200))
+    ## Soft paper scrim so the title and cards never blend into busy artwork.
+    add Transform("images/menu_scrim.png", fit="cover", xysize=(1920, 1200))
 
     ## Title block, upper area.
     vbox:
@@ -338,6 +340,7 @@ screen pause_menu():
     tag menu
     modal True
     add Transform("images/menu_bg.png", fit="cover", xysize=(1920, 1200))
+    add Transform("images/menu_scrim.png", fit="cover", xysize=(1920, 1200))
 
     vbox:
         xalign 0.5
@@ -363,7 +366,9 @@ screen nepo_menu_button():
             yalign 0.02
             action ShowMenu("pause_menu")
             text_style "menu_button_text"
-            background None
+            ## Paper chip so the control never blends into the scene art.
+            background Frame("gui/btn_idle.png", 22, 22)
+            padding (26, 10, 26, 12)
 
 style menu_button_text:
     font nepo.serif

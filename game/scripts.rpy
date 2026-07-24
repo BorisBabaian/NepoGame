@@ -15,14 +15,15 @@ default reputation = 5
 default composure = 5
 
 ## ── Backgrounds ──────────────────────────────────────────────────────────────
-## Each resolves to images/bg/<name>.png (full 1920x1080). Until the art exists,
-## a labelled paper placeholder is shown so the scene still plays.
+## Each resolves to images/bg/<name>.png. Real art is scaled to *cover* the
+## 16:10 canvas, so any source size fills the screen with no black edges. Until
+## the art exists, a labelled paper placeholder is shown so the scene still plays.
 init python:
     import os
     def bg(name, label):
         path = "images/bg/%s.png" % name
         if renpy.loadable(path):
-            renpy.image("bg " + name, path)
+            renpy.image("bg " + name, Transform(path, fit="cover", xysize=(1920, 1200)))
         else:
             renpy.image("bg " + name, Fixed(
                 "images/bg_paper.png",
@@ -35,7 +36,9 @@ init python:
     for n, lbl in [
         ("wake", "bedroom, silk sheets, decorative alarm at 10:47"),
         ("mirror", "gilded bathroom mirror"),
+        ("nestor", "bedroom doorway, Nestor the butler waiting"),
         ("hall", "breakfast hall, table for forty set for two"),
+        ("hall_news", "father behind the Financial Herald, yacht on the front page"),
         ("card", "Visa Platinum locked in a velvet box"),
         ("monday", "office tower forecourt, convertible across two spaces"),
         ("office", "corner office, floor 67, a plant taller than a career"),
@@ -92,10 +95,13 @@ label ch_prologue:
     call screen mirror_select
     "Yes. That one. Obviously."
 
+    scene bg nestor with dissolve
     nestor "Your father requests your presence at breakfast. He used the word 'requests' loosely."
 
     scene bg hall with dissolve
     "11:15 AM. The breakfast hall. A table for forty, set for two."
+
+    scene bg hall_news with dissolve
     "At the far end, behind a financial newspaper: Father. The front page shows a yacht, a harbour, and a crane lifting something that used to be expensive."
 
     father "Do you know what a margin is?"

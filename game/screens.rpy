@@ -99,15 +99,15 @@ screen xbutton(caption, act, width=720, dim=False):
         fixed:
             fit_first True
             frame:
-                background Frame("gui/btn_idle.png", 40, 30)
+                background Frame("gui/btn_idle.png", 22, 22)
                 xsize width
-                padding (30, 16, 30, 18)
+                padding (30, 15, 30, 17)
                 at hv_hide
                 text caption color nepo.ink size 30 xfill True text_align 0.5 line_spacing 2
             frame:
-                background Frame("gui/btn_hover.png", 40, 30)
+                background Frame("gui/btn_hover.png", 22, 22)
                 xsize width
-                padding (30, 16, 30, 18)
+                padding (30, 15, 30, 17)
                 at hv_show
                 text caption color nepo.paper size 30 xfill True text_align 0.5 line_spacing 2
 
@@ -302,7 +302,9 @@ screen verdict_card(title, reputation, composure, roast, concepts):
 
 screen main_menu():
     tag menu
-    add "images/menu_bg.png"
+    ## Scale the art to fill the 16:10 canvas (source may be any size), so there
+    ## are never black edges if the uploaded image is not exactly 1920x1200.
+    add Transform("images/menu_bg.png", fit="cover", xysize=(1920, 1200))
 
     ## Title block, upper area.
     vbox:
@@ -335,7 +337,7 @@ screen main_menu():
 screen pause_menu():
     tag menu
     modal True
-    add "images/menu_bg.png"
+    add Transform("images/menu_bg.png", fit="cover", xysize=(1920, 1200))
 
     vbox:
         xalign 0.5

@@ -314,7 +314,7 @@ screen main_menu():
         yalign 0.12
         spacing 10
         text "BUSINESS AND MANAGEMENT IN A GLOBAL CONTEXT":
-            xalign 0.5 size 21 color nepo.ink_faint kerning 7
+            xalign 0.5 size 21 color nepo.ink_soft kerning 7
         text "Nepo The Game" font nepo.serif_bold size 92 xalign 0.5
         text "You had a surname, a platinum card and a corner office.\nYou have lost all three. Earn them back.":
             xalign 0.5 text_align 0.5 size 29 font nepo.serif_italic italic True color nepo.ink_soft
